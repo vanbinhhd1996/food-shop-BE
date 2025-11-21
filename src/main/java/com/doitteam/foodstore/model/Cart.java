@@ -38,25 +38,10 @@ public class Cart {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items = new ArrayList<>();
 
-    // Helper methods
     public BigDecimal getTotalAmount() {
         return items.stream()
                 .map(CartItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public void addItem(CartItem item) {
-        items.add(item);
-        item.setCart(this);
-    }
-
-    public void removeItem(CartItem item) {
-        items.remove(item);
-        item.setCart(null);
-    }
-
-    public void clear() {
-        items.clear();
     }
 
     public int getTotalItems() {

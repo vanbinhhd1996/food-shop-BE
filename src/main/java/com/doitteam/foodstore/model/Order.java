@@ -52,9 +52,6 @@ public class Order {
     @Column(name = "shipping_phone", nullable = false, length = 20)
     private String shippingPhone;
 
-    @Column(name = "shipping_name", nullable = false, length = 100)
-    private String shippingName;
-
     @Column(name = "shipping_fee", precision = 10, scale = 2)
     private BigDecimal shippingFee = BigDecimal.ZERO;
 

@@ -59,7 +59,6 @@ public class Product {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Relationships
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
 
@@ -69,12 +68,11 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
-    // Helper methods
     public void increaseViews() {
         this.views++;
     }
 
-        public void decreaseStock(int quantity) {
+    public void decreaseStock(int quantity) {
         if (this.stockQuantity >= quantity) {
             this.stockQuantity -= quantity;
         } else {
