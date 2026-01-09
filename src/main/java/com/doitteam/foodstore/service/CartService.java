@@ -103,7 +103,8 @@ public class CartService {
             throw new BadRequestException("This cart item does not belong to you");
         }
 
-        cartItemRepository.delete(cartItem);
+        Cart cart = cartItem.getCart();
+        cart.getItems().remove(cartItem);
         log.info("Removed cart item for user: {}", userId);
 
         return getCartByUserId(userId);
