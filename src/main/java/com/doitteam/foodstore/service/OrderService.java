@@ -6,6 +6,7 @@ import com.doitteam.foodstore.dto.request.UpdateOrderStatusRequest;
 import com.doitteam.foodstore.dto.response.OrderItemResponse;
 import com.doitteam.foodstore.dto.response.OrderListResponse;
 import com.doitteam.foodstore.dto.response.OrderResponse;
+import com.doitteam.foodstore.dto.response.PageResponse;
 import com.doitteam.foodstore.exception.BadRequestException;
 import com.doitteam.foodstore.exception.InsufficientStockException;
 import com.doitteam.foodstore.exception.ResourceNotFoundException;
@@ -17,9 +18,16 @@ import com.doitteam.foodstore.model.enums.PaymentStatus;
 import com.doitteam.foodstore.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -115,17 +123,44 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
+    public PageResponse<OrderListResponse> getAllOrders(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Order> orderPage = orderRepository.findAll(pageable);
+
+        List<OrderListResponse> content = orderPage.getContent()
+                .stream()
+                .map(this::mapToOrderListResponse)
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(
+                content,
+                orderPage.getNumber(),
+                orderPage.getSize(),
+                orderPage.getTotalElements(),
+                orderPage.getTotalPages(),
+                orderPage.isLast()
+        );
+    }
+
+
+//    public List<OrderListResponse> getAllOrders (){
+//        List<Order> orders = orderRepository.findAll();
+//        return orders.stream()
+//                .map(this::mapToOrderListResponse)
+//                .collect(Collectors.toList());
+//    }
+
     public OrderResponse getOrderById(Long userId, Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
-
-        if (!order.getUser().getId().equals(userId)) {
+        if (userId == 0){
+            return mapToOrderResponse(order);
+        } else if (!order.getUser().getId().equals(userId)) {
             throw new UnauthorizedException("This order does not belong to you");
         }
-
         return mapToOrderResponse(order);
     }
-
     @Transactional
     public OrderResponse updateOrderStatus(Long orderId, UpdateOrderStatusRequest request, Long userId) {
         Order order = orderRepository.findById(orderId)

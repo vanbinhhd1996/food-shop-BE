@@ -35,6 +35,18 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.success(orders));
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<PageResponse<OrderListResponse>>> getAllOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+
+        PageResponse<OrderListResponse> orders =
+                orderService.getAllOrders(page, size);
+
+        return ResponseEntity.ok(ApiResponse.success(orders));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<OrderResponse>> getOrderById(
             @RequestParam Long userId,
